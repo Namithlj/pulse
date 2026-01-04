@@ -68,6 +68,11 @@ if (resolvedUploads) {
   app.use('/uploads', express.static(resolvedUploads));
 }
 
+// basic root health route
+app.get('/', (req, res) => {
+  res.json({ status: 'ok', service: 'pulse-backend', env: process.env.NODE_ENV || 'development' });
+});
+
 // Socket.io: simple progress channel
 io.on('connection', (socket) => {
   console.log('socket connected', socket.id);
