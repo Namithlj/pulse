@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
-const API = import.meta.env.VITE_API_URL || 'http://localhost:4000'
+const API = import.meta.env.VITE_API_URL || 'https://pulse-qj2r.vercel.app'
 
 export default function AdminPage() {
   const [videos, setVideos] = useState([])
