@@ -8,11 +8,17 @@ const signToken = (user) => {
 exports.register = async (req, res) => {
   const { name, email, password, role, tenant } = req.body;
   try {
+    // basic required field validation
+    if (!name || !email || !password) return res.status(400).json({ message: 'Missing required fields' });
+
     let user = await User.findOne({ email });
     if (user) return res.status(400).json({ message: 'User exists' });
+    // allowed roles must match the enum in User model
+    const allowedRoles = ['viewer', 'editor', 'admin'];
+    let finalRole = 'editor';
+    if (role && allowedRoles.includes(role)) finalRole = role;
     // Prevent public creation of admin accounts. Only allow role 'admin' when
     // the request includes a valid admin JWT in Authorization header.
-    let finalRole = role || 'editor';
     if (finalRole === 'admin') {
       const authHeader = req.headers.authorization;
       let allowed = false;
@@ -30,7 +36,7 @@ exports.register = async (req, res) => {
     user = new User({ name, email, password, role: finalRole, tenant });
     await user.save();
     const token = signToken(user);
-    res.json({ token, user: { id: user._id, name: user.name, email: user.email, role: user.role, tenant: user.tenant } });
+    return res.status(201).json({ token, user: { id: user._id, name: user.name, email: user.email, role: user.role, tenant: user.tenant } });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Server error' });
