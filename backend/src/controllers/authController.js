@@ -45,6 +45,10 @@ exports.register = async (req, res) => {
     return res.status(201).json({ token, user: { id: user._id, name: user.name, email: user.email, role: user.role, tenant: user.tenant } });
   } catch (err) {
     console.error('REGISTER error', err);
+    // If explicit debug flag is set, return the error message even in production
+    if (process.env.DEBUG_REG === 'true') {
+      return res.status(500).json({ message: 'Server error', error: err.message });
+    }
     if ((process.env.NODE_ENV || 'development') === 'production') {
       // keep generic in production
       return res.status(500).json({ message: 'Server error' });
