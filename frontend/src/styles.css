@@ -1,0 +1,71 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Inter', sans-serif;
+}
+
+body {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0f172a, #020617);
+  color: #e5e7eb;
+}
+
+/* fade animation */
+.fade-in {
+  animation: fadeIn 0.6s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Layout and cards */
+.nav-links a, .nav-links button { color: #e2e8f0; text-decoration: none }
+
+.card {
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border: 1px solid rgba(148,163,184,0.06);
+  padding: 16px;
+  border-radius: 10px;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+.card:hover { transform: translateY(-6px); box-shadow: 0 8px 24px rgba(2,6,23,0.6); }
+
+.btn {
+  background: linear-gradient(90deg,#06b6d4,#7c3aed);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+}
+.btn.subtle { background: transparent; border: 1px solid rgba(148,163,184,0.12); color: #cbd5e1 }
+.btn:active { transform: translateY(1px) }
+
+.badge { padding: 6px 8px; border-radius: 999px; font-size: 12px; font-weight: 700 }
+.badge.uploaded { background: #64748b; color: white }
+.badge.processing { background: #f97316; color: white }
+.badge.safe { background: #10b981; color: white }
+.badge.flagged { background: #ef4444; color: white }
+.badge.error { background: #ef4444; color: white }
+
+/* table styles (if used) */
+table { width: 100%; border-collapse: collapse }
+th, td { text-align: left; padding: 8px }
+thead th { opacity: 0.8; font-size: 13px }
+
+/* Responsive players */
+video { border-radius: 8px; background: black }
+
+/* small utility */
+.muted { opacity: 0.7; font-size: 13px }
+
