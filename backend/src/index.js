@@ -3,6 +3,7 @@ const express = require('express');
 const http = require('http');
 const path = require('path');
 const fs = require('fs');
+const os = require('os');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const { Server } = require('socket.io');
@@ -40,13 +41,31 @@ connectDB().then(async () => {
 app.use('/api/auth', authRoutes);
 app.use('/api/videos', videoRoutes);
 
-// serve uploaded files statically (for testing)
-app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
+// determine safe uploads directory (env override, local uploads, or OS tmp)
+let uploadsDir = process.env.UPLOAD_DIR || path.join(__dirname, '..', 'uploads');
+function ensureDir(dir) {
+  try {
+    fs.mkdirSync(dir, { recursive: true });
+    return dir;
+  } catch (err) {
+    console.warn('Could not create uploads dir at', dir, '-', err.message);
+    return null;
+  }
+}
 
-// ensure uploads directory exists
-const uploadsDir = path.join(__dirname, '..', 'uploads');
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
+let resolvedUploads = ensureDir(uploadsDir);
+if (!resolvedUploads) {
+  const tmpDir = path.join(os.tmpdir(), 'pulse-uploads');
+  resolvedUploads = ensureDir(tmpDir);
+  if (!resolvedUploads) {
+    console.error('Failed to create any uploads directory. Uploads will not be available.');
+  }
+}
+
+if (resolvedUploads) {
+  app.locals.uploadsDir = resolvedUploads;
+  // serve uploaded files statically (for testing)
+  app.use('/uploads', express.static(resolvedUploads));
 }
 
 // Socket.io: simple progress channel

@@ -7,11 +7,10 @@ const path = require('path');
 const { v4: uuidv4 } = require('uuid');
 const fs = require('fs');
 
-const UPLOAD_DIR = process.env.UPLOAD_DIR || path.join(__dirname, '..', '..', 'uploads');
-
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, UPLOAD_DIR);
+    const dir = (req.app && req.app.locals && req.app.locals.uploadsDir) ? req.app.locals.uploadsDir : (process.env.UPLOAD_DIR || path.join(__dirname, '..', '..', 'uploads'));
+    cb(null, dir);
   },
   filename: function (req, file, cb) {
     const ext = path.extname(file.originalname);
@@ -45,7 +44,8 @@ router.post('/upload', auth, (req, res, next) => {
     // start processing asynchronously
     process.nextTick(() => {
       const io = req.app.locals.io;
-      simulateProcessing(io, video, path.join(UPLOAD_DIR, req.file.filename));
+      const dir = req.app && req.app.locals && req.app.locals.uploadsDir ? req.app.locals.uploadsDir : (process.env.UPLOAD_DIR || path.join(__dirname, '..', '..', 'uploads'));
+      simulateProcessing(io, video, path.join(dir, req.file.filename));
     });
 
     res.json({ video });
@@ -78,7 +78,8 @@ router.get('/:id/stream', auth, async (req, res) => {
     if (!video) return res.status(404).send('Not found');
     // enforce ownership or admin
     if (String(video.owner) !== String(req.user._id) && req.user.role !== 'admin') return res.status(403).send('Forbidden');
-    const filePath = path.join(UPLOAD_DIR, video.filename);
+    const dir = req.app && req.app.locals && req.app.locals.uploadsDir ? req.app.locals.uploadsDir : (process.env.UPLOAD_DIR || path.join(__dirname, '..', '..', 'uploads'));
+    const filePath = path.join(dir, video.filename);
     if (!fs.existsSync(filePath)) return res.status(404).send('File missing');
 
     const stat = fs.statSync(filePath);
