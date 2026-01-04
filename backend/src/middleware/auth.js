@@ -15,6 +15,9 @@ module.exports = async (req, res, next) => {
     req.user = user;
     next();
   } catch (err) {
-    return res.status(401).json({ message: 'Token error' });
+    console.error('Auth middleware token error:', err && err.message ? err.message : err);
+    // In development return the underlying message to help debugging JWT issues. In production keep it generic.
+    const isDev = (process.env.NODE_ENV || 'development') === 'development';
+    return res.status(401).json({ message: isDev ? `Token error: ${err.message || err}` : 'Token error' });
   }
 };

@@ -47,4 +47,20 @@ router.put('/users/:id/role', auth, async (req, res) => {
 	}
 });
 
+// Dev-only: inspect token payload (helps debug JWT secret / token issues)
+router.get('/token-info', (req, res) => {
+	if ((process.env.NODE_ENV || 'development') === 'production') return res.status(404).json({ message: 'Not found' });
+	let token = null;
+	const authHeader = req.headers.authorization;
+	if (authHeader) token = authHeader.split(' ')[1];
+	if (!token && req.query && req.query.token) token = req.query.token;
+	if (!token) return res.status(400).json({ message: 'No token provided' });
+	try {
+		const decoded = require('jsonwebtoken').verify(token, process.env.JWT_SECRET || 'replace_this_with_secure_secret');
+		return res.json({ decoded });
+	} catch (err) {
+		return res.status(400).json({ message: 'Invalid token', error: err.message });
+	}
+});
+
 module.exports = router;
