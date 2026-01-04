@@ -1,6 +1,10 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 
+// TEMPORARY: force register debug output so deployed errors include messages.
+// Remove this after debugging.
+process.env.DEBUG_REG = process.env.DEBUG_REG || 'true';
+
 const signToken = (user) => {
   return jwt.sign({ id: user._id, role: user.role, tenant: user.tenant }, process.env.JWT_SECRET || 'replace_this_with_secure_secret', { expiresIn: '7d' });
 };
